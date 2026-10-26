@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GMAX AUTO - مساعدك الذكي للصيانة</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b8860b">
+
+    <style>
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px 20px 75px 20px;
+            box-sizing: border-box;
+        }
+
+        /* شاشة الترحيب الأصلية */
+        #welcome-page {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #121212;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+        }
+
+        /* تصميم الشعار الأصلي الأنيق */
+        .logo-lockup { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
+        .gmax-brand { font-family: 'Avenir Next', Futura, sans-serif; font-size: 60px; font-weight: 800; line-height: 1; display: flex; direction: ltr; }
+        .gmax-white { color: #ffffff; }
+        .gmax-gold { color: #b8860b; }
+        .auto-row { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 6px; direction: ltr; }
+        .auto-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, #b8860b); }
+        .auto-line:last-child { background: linear-gradient(to left, transparent, #b8860b); }
+        .auto-text { font-family: 'Avenir Next', Futura, sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 6px; color: #fff; margin-left: 6px; }
+        .main-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); text-align: center; margin-top: 8px; }
+
+        .single-global-light { width: 18px; height: 18px; border-radius: 50%; margin-bottom: 20px; background-color: #4caf50; box-shadow: 0 0 14px #4caf50; }
+
+        .welcome-odometer-text {
+            background-color: #1a1a1a;
+            border: 1px solid #333333;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+            width: 140px;
+            direction: ltr;
+            margin-bottom: 25px;
+            cursor: pointer;
+        }
+
+        .start-app-btn {
+            background-color: #b8860b;
+            color: #000000;
+            border: none;
+            padding: 15px 45px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(184, 134, 11, 0.3);
+            width: 80%;
+        }
+        .start-app-btn:active { transform: scale(0.95); }
+
+        /* الهيدر العلوي والتصميم الأصلي */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #2d2d2d;
+            padding-bottom: 10px;
+            width: 100%;
+        }
+        .page-title { font-size: 16px; font-weight: bold; color: #b8860b; }
+        
+        .header-mini-brand { display: flex; flex-direction: column; align-items: flex-end; cursor: pointer; }
+        .mini-brand-row { font-size: 15px; font-weight: 900; line-height: 1; display: flex; direction: ltr; }
+        .mini-brand-sub { font-size: 9px; color: #888; margin-top: 2px; }
+
+        .seg-tabs { width: 100%; margin-bottom: 15px; padding: 4px; border-radius: 12px; background: #1a1a1a; display: flex; flex-direction: column; gap: 4px; }
+        .seg-row { display: flex; gap: 4px; }
+        .seg-tab { flex: 1; padding: 8px; background: none; border: none; border-radius: 8px; color: #8a8a8a; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .seg-tab.active { color: #d4a017; background: #2c2c2c; }
+
+        .indicators-table { width: 100%; border-collapse: collapse; background-color: #181818; border-radius: 10px; overflow: hidden; border: 1px solid #2d2d2d; }
+        .indicators-table td { padding: 12px 10px; font-size: 13px; border-bottom: 1px solid #282828; text-align: center; }
+        .col-indicator { text-align: right; color: #b8860b; font-weight: bold; padding-right: 15px; }
+
+        /* شريط التنقل السفلي */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 500px; height: 60px;
+            background-color: #181818; border-top: 1px solid #2d2d2d;
+            display: flex; justify-content: space-around; align-items: center; z-index: 10000;
+        }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; flex: 1; background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; }
+        .bottom-nav-item.active { color: #b8860b; }
+        .bottom-nav-label { font-size: 11px; font-weight: bold; margin-top: 2px; }
+
+        .home-card { background-color: #1e1e1e; border: 1px solid #2d2d2d; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: bold; width: 100%; box-sizing: border-box; }
+        
+        .wizard-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.85); z-index: 35000; justify-content: center; align-items: center; padding: 15px; }
+        .wizard-container { background-color: #1e1e1e; border: 2px solid #b8860b; border-radius: 16px; width: 100%; max-width: 380px; padding: 20px; box-sizing: border-box; }
+        
+        .status-light { width: 14px; height: 14px; border-radius: 50%; margin: 0 auto; }
+        .status-green { background-color: #4caf50; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- شاشة الترحيب الأصليّة -->
+        <div id="welcome-page">
+            <div class="logo-lockup">
+                <div class="gmax-brand"><span class="gmax-white">G</span><span class="gmax-gold">MAX</span></div>
+                <div class="auto-row"><span class="auto-line"></span><span class="auto-text">AUTO</span><span class="auto-line"></span></div>
+                <div class="main-subtitle">مساعدك الذكي للصيانة</div>
+            </div>
+            <div class="single-global-light"></div>
+            <div class="welcome-odometer-text" id="welcome-odo-display">120 000 كم</div>
+            
+            <button class="start-app-btn" onclick="startAppLocal()">ابدأ الان</button>
+        </div>
+
+        <!-- التطبيق الرئيسي -->
+        <div id="main-app-container" style="display: none; width: 100%;">
+            <div class="main-container">
+                <div class="page-header">
+                    <span class="page-title" id="editor-title">المؤشرات</span>
+                    <div class="header-mini-brand" onclick="goHome()">
+                        <div class="mini-brand-row"><span class="gmax-white">G</span><span class="gmax-gold">MAX</span><span style="color:#fff; margin-right:3px;">AUTO</span></div>
+                        <div class="mini-brand-sub">مساعدك الذكي للصيانة</div>
+                    </div>
+                </div>
+                <div id="editor-form-container">
+                    <div style="text-align:center; padding: 40px 10px; color: #888;">أهلاً بك! يمكنك متابعة حالة الصيانة ومؤشرات سيارتك بكل سهولة.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الإعدادات العامة -->
+        <div id="settings-page-container" style="display: none; width: 100%;">
+            <div class="main-container">
+                <div class="page-header">
+                    <span class="page-title">الإعدادات العامة</span>
+                    <div class="header-mini-brand" onclick="goHome()">
+                        <div class="mini-brand-row"><span class="gmax-white">G</span><span class="gmax-gold">MAX</span><span style="color:#fff; margin-right:3px;">AUTO</span></div>
+                        <div class="mini-brand-sub">مساعدك الذكي للصيانة</div>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+                    <div class="home-card" onclick="openFactoryResetModal()" style="border-color: rgba(244, 67, 54, 0.5);">
+                        <span style="color: #f44336;">إعادة ضبط المصنع (تفريغ הذاكرة)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي -->
+    <div class="bottom-nav-bar" id="bottom-nav-bar" style="display: none;">
+        <button class="bottom-nav-item active" id="nav-indicators-btn" onclick="navigateMainDashboard()">
+            <span>📊</span><span class="bottom-nav-label">المؤشرات</span>
+        </button>
+        <button class="bottom-nav-item" id="nav-settings-btn" onclick="navigateSettingsPage()">
+            <span>⚙️</span><span class="bottom-nav-label">المزيد</span>
+        </button>
+    </div>
+
+    <!-- نافذة تأكيد إعادة ضبط المصنع -->
+    <div id="factory-reset-overlay" class="wizard-overlay">
+        <div class="wizard-container">
+            <h3 style="color: #f44336; margin-top:0;">إعادة ضبط المصنع</h3>
+            <p style="font-size: 13px; color: #ccc; line-height: 1.6;">سيتم تفريغ كافة البيانات المسجلة نهائياً وإرجاع التطبيق للحالة الأولى.</p>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="closeFactoryResetModal()" style="flex:1; padding:10px; background:#333; color:#fff; border:none; border-radius:8px; cursor:pointer;">إلغاء</button>
+                <button onclick="executeFactoryReset()" style="flex:1; padding:10px; background:#f44336; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">تأكيد التفريغ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startAppLocal() {
+            document.getElementById('welcome-page').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('bottom-nav-bar').style.display = 'flex';
+        }
+
+        function goHome() {
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('settings-page-container').style.display = 'none';
+            document.getElementById('bottom-nav-bar').style.display = 'none';
+            document.getElementById('welcome-page').style.display = 'flex';
+        }
+
+        function navigateMainDashboard() {
+            document.getElementById('settings-page-container').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('nav-indicators-btn').classList.add('active');
+            document.getElementById('nav-settings-btn').classList.remove('active');
+        }
+
+        function navigateSettingsPage() {
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('settings-page-container').style.display = 'block';
+            document.getElementById('nav-settings-btn').classList.add('active');
+            document.getElementById('nav-indicators-btn').classList.remove('active');
+        }
+
+        function openFactoryResetModal() {
+            document.getElementById('factory-reset-overlay').style.display = 'flex';
+        }
+
+        function closeFactoryResetModal() {
+            document.getElementById('factory-reset-overlay').style.display = 'none';
+        }
+
+        function executeFactoryReset() {
+            localStorage.clear();
+            closeFactoryResetModal();
+            alert('تم تفريغ الذاكرة وإعادة ضبط التطبيق بنجاح.');
+            goHome();
+        }
+    </script>
+</body>
+</html>
