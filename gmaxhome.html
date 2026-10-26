@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMAX HOME - إدارة مصاريف العائلة (نسخة محلية للتجريب)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .container, .main-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .main-container {
+            padding: 20px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .content-wrap {
+            flex: 1;
+            width: 100%;
+        }
+
+        /* ===== صفحة الاستقبال ===== */
+        #welcome-page {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 8vh;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            box-sizing: border-box;
+            background-color: #121212;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            overflow-y: auto;
+            padding-bottom: 30px;
+        }
+
+        .logo-lockup { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; width: 100%; }
+        
+        .home-text {
+            font-family: 'Avenir Next', Futura, 'Century Gothic', 'Trebuchet MS', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: #4CAF50;
+            letter-spacing: 8px;
+            margin: 0;
+            direction: ltr;
+        }
+        .home-row { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; direction: ltr; }
+        .home-line { flex: 1; height: 1.5px; background: linear-gradient(to right, transparent, #b8860b); max-width: 120px; }
+        .home-line:last-child { background: linear-gradient(to left, transparent, #b8860b); }
+
+        .welcome-card-box {
+            width: 50vw;
+            max-width: 250px;
+            background-color: #1a1a1a;
+            border: 1.5px solid #2d2d2d;
+            border-radius: 12px;
+            display: flex;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .start-app-btn {
+            background-color: #b8860b;
+            color: #121212;
+            border: none;
+            height: 48px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(184, 134, 11, 0.35);
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50vw;
+            max-width: 250px;
+        }
+        .start-app-btn:active { transform: scale(0.96); }
+
+        .odo-why-btn { position: absolute; top: 16px; left: 16px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); font-size: 13px; line-height: 22px; text-align: center; cursor: pointer; user-select: none; z-index: 10; }
+        .odo-why-btn:active { border-color: #b8860b; color: #b8860b; }
+
+        /* ===== الهيدر الرئيسي ===== */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2d2d2d;
+            padding-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .cfg-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: rgba(255,255,255,0.7); font-family: inherit; cursor: pointer; padding: 0; }
+        .cfg-btn:active { opacity: 0.6; }
+
+        .header-mini-brand { display: flex; flex-direction: column; align-items: flex-end; cursor: pointer; user-select: none; }
+        .mini-brand-row { font-size: 15px; font-weight: 900; letter-spacing: -0.5px; line-height: 1; display: flex; direction: ltr; }
+        .mini-brand-sub { font-size: 9.5px; color: #888888; margin-top: 2px; }
+
+        /* ===== أزرار الإعدادات والنماذج ===== */
+        .num-ltr { direction: ltr; unicode-bidi: embed; display: inline-block; }
+
+        .date-plain-box {
+            position: relative;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-bottom: 18px;
+            cursor: pointer;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .date-plain-box:hover { color: rgba(255, 255, 255, 0.9); }
+        .date-text-display {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            direction: rtl;
+        }
+        .hidden-date-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .fund-add-btn { width: 100%; background: #2e7d32; color: #fff; border: none; border-radius: 12px; height: 52px; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; margin: 0 0 10px; display: flex; align-items: center; justify-content: center; }
+        .fund-add-btn:active { background: #235d26; }
+
+        .fuel-add-btn { width: 100%; background: #2f6fb5; color: #fff; border: none; border-radius: 12px; height: 52px; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; margin: 0 0 10px; display: flex; align-items: center; justify-content: center; }
+        .fuel-add-btn:active { background: #245a98; }
+
+        .exp-big-btn.list { background: #3d4e63; color: #fff; border-radius: 12px; height: 52px; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; margin: 0 0 10px; width: 100%; border: none; display: flex; align-items: center; justify-content: center; }
+        .exp-big-btn.list:active { background: #2c3847; }
+
+        .exp-big-btn.stats { background: #333333; color: #fff; border-radius: 12px; height: 52px; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; margin: 0 0 10px; width: 100%; border: 1px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; }
+        .exp-big-btn.stats:active { background: #222222; }
+
+        .exp-subhead { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 16px; font-weight: bold; color: #b8860b; }
+        .exp-back { background: #1e1e1e; border: 1px solid #2d2d2d; color: #b8860b; width: 38px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .exp-back:active { background: #2b2410; }
+
+        /* ===== القائمة وسلسلة المصاريف ===== */
+        .fuel-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 6px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
+        .fuel-row .fuel-d { color: rgba(255,255,255,0.6); font-size: 12px; direction: ltr; min-width: 75px; }
+        .exp-mid { flex: 1; padding: 0 10px; font-size: 13px; color: #fff; text-align: right; }
+        .exp-mid small { display: block; font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+        .fuel-row .fuel-a { color: #ffda75; font-weight: bold; white-space: nowrap; font-size: 13px; }
+        .fuel-del { background: none; border: none; color: #e57373; font-size: 18px; padding: 4px 8px; cursor: pointer; font-family: inherit; }
+        .fuel-empty { text-align: center; color: #888; font-size: 13px; padding: 35px 10px; line-height: 1.8; }
+        .fuel-copy { width: 100%; margin-top: 14px; background: #1a1a1a; border: 1px solid #b8860b; color: #ffda75; border-radius: 10px; padding: 12px; font-weight: bold; font-size: 13px; font-family: inherit; cursor: pointer; }
+        .fuel-status { text-align: center; font-size: 12px; min-height: 16px; margin-top: 8px; color: #76ff03; }
+
+        /* ===== النوافذ المنبثقة ===== */
+        #fuel-overlay { position: fixed; inset: 0; z-index: 36600; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.7); }
+        .fuel-sheet { width: calc(100% - 24px); max-width: 476px; box-sizing: border-box; margin-bottom: 12px; background: #e3e3df; border: 1.5px solid #2f6fb5; border-right: 7px solid #2f6fb5; border-radius: 14px; padding: 14px; box-shadow: 0 8px 28px rgba(0,0,0,0.7); color: #1d3d66; max-height: calc(100vh - 24px); overflow-y: auto; animation: decideIn 0.16s ease-out; }
+        @keyframes decideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .fuel-title { font-size: 16px; font-weight: bold; color: #245a98; margin-bottom: 10px; text-align: center; }
+
+        .main-group-btn { display: block; width: 100%; background: #f4f4f1; border: 2px solid #2f6fb5; color: #1d3d66; border-radius: 12px; padding: 16px; margin-bottom: 10px; font-size: 16px; font-weight: bold; font-family: inherit; cursor: pointer; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+        .main-group-btn:active { background: #2f6fb5; color: #fff; }
+
+        .fuel-amount-box { direction: ltr; text-align: center; background: #f4f4f1; border: 2px solid #2f6fb5; border-radius: 10px; padding: 8px; font-size: 22px; font-weight: bold; color: #1d3d66; min-height: 48px; }
+        .fuel-amount-box.empty { color: #9aa6b6; font-size: 14px; line-height: 28px; }
+        
+        .fuel-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; direction: ltr; margin-top: 8px; }
+        .fuel-key { background: #f4f4f1; border: 1px solid #b8bec7; color: #222; border-radius: 8px; padding: 10px 0; font-size: 16px; font-weight: bold; font-family: inherit; cursor: pointer; }
+        .fuel-key:active { background: #d3dbe6; }
+        .fuel-key.del { background: #f6dcd6; border-color: #e3b5ab; color: #b3261e; }
+        .fuel-key.clear-btn { background: rgba(229, 115, 115, 0.2); border: 1px solid rgba(229, 115, 115, 0.4); color: #b3261e; font-size: 13px; }
+        .fuel-key.clear-btn:active { background: rgba(229, 115, 115, 0.4); }
+
+        .sub-options-box { margin-top: 8px; background: #eaeae6; border-radius: 8px; padding: 8px; border: 1px solid #b8bec7; }
+        .sub-chips-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+        .sub-chip { background: #f4f4f1; border: 1px solid #aeb6c2; color: #1d3d66; border-radius: 6px; padding: 8px 1px; font-size: 10px; font-weight: bold; font-family: inherit; cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sub-chip.active { background: #2f6fb5; color: #fff; border-color: #245a98; }
+
+        .fuel-note-input { width: 100%; background: #f4f4f1; border: 1px solid #b8bec7; border-radius: 8px; padding: 10px; font-size: 13px; color: #1d3d66; margin-top: 8px; font-family: inherit; outline: none; text-align: center; }
+        .fuel-note-input::placeholder { text-align: center; }
+        .fuel-note-input:focus { border-color: #2f6fb5; }
+
+        .fuel-err { color: #b3261e; font-size: 12px; min-height: 14px; margin-top: 4px; text-align: center; font-weight: bold; }
+        .fuel-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .fuel-ok { flex: 2; background: #2f6fb5; color: #fff; border: none; border-radius: 10px; height: 46px; font-size: 14px; font-weight: bold; font-family: inherit; cursor: pointer; }
+        .fuel-x { flex: 1; background: #c9ccd1; color: #333; border: none; border-radius: 10px; height: 46px; font-size: 13px; font-weight: bold; font-family: inherit; cursor: pointer; }
+
+        /* ===== شاشات الإحصائيات ===== */
+        .st-hint { font-size: 13px; color: rgba(255,255,255,0.55); margin: 0 0 14px; }
+        .st-q { display: block; width: 100%; text-align: right; background: #1e1e1e; border: 1px solid #2d2d2d; border-right: 4px solid #b8860b; border-radius: 12px; padding: 18px 16px; margin-bottom: 12px; color: #fff; font-size: 15px; font-weight: bold; font-family: inherit; cursor: pointer; }
+        .st-q:active { border-color: #ffd54a; background: #242424; }
+        .st-foot { font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; margin-top: 14px; line-height: 1.6; }
+
+        .st-cats { width: 100%; text-align: right; margin-top: 14px; }
+        .st-cat { margin-bottom: 12px; background: #181818; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); }
+        .st-cat-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .st-cat-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .st-cat-bar > div { height: 100%; border-radius: 4px; margin-right: 0; margin-left: auto; }
+
+        /* جدول سجل التسويات في الإحصائيات */
+        .settlement-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #181818; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
+        .settlement-table th { background: #222; color: #b8860b; font-size: 12px; padding: 10px; text-align: center; border-bottom: 1px solid #333; }
+        .settlement-table td { padding: 10px; font-size: 13px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .settlement-table tr:last-child td { border-bottom: none; }
+
+        /* نافذة فرعية لعرض التفاصيل */
+        #stat-detail-overlay { position: fixed; inset: 0; z-index: 37000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.88); padding: 15px; }
+        #stat-detail-card { position: relative; width: 100%; max-width: 440px; max-height: 85vh; background: #1a1a1a; border: 1px solid #b8860b; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; color: #fff; }
+        
+        .sd-close { position: absolute; top: 16px; left: 16px; background: none; border: none; color: #aaa; font-size: 20px; cursor: pointer; z-index: 5; }
+        .sd-title { font-size: 16px; font-weight: bold; color: #b8860b; text-align: right; }
+        
+        .sd-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .asset-toggle-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #aaa;
+            cursor: pointer;
+            user-select: none;
+            margin: 0 auto;
+        }
+        .asset-toggle-pill.active {
+            background: rgba(46, 125, 50, 0.2);
+            border-color: #2e7d32;
+            color: #76ff03;
+        }
+        .asset-toggle-pill:active { transform: scale(0.96); }
+
+        .sd-date-plain-box {
+            position: relative;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6) !important;
+            text-align: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            display: inline-block;
+            margin-left: auto;
+            margin-right: auto;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .sd-date-plain-box:hover { color: rgba(255, 255, 255, 0.9) !important; }
+        .hidden-absolute-date {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sd-big-val { font-size: 26px; font-weight: bold; color: #ffd54a; text-align: center; margin: 0 0 16px; }
+
+        /* ===== القوائم المنبثقة الشاملة ===== */
+        #app-menu-overlay { display: none; position: fixed; inset: 0; z-index: 36000; background: rgba(0,0,0,0.4); }
+        #app-menu { position: absolute; width: 220px; background: #1e1e1e; border: 1px solid rgba(184,134,11,0.5); border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+        .am-item { display: block; width: 100%; background: none; border: none; border-bottom: 1px solid #2d2d2d; color: #fff; padding: 13px 15px; text-align: right; font-size: 14px; font-family: inherit; cursor: pointer; }
+        .am-item:last-child { border-bottom: none; }
+        .am-item:active { background: #2b2410; }
+        .am-item.danger { color: #f44336; }
+
+        .wizard-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 38000; justify-content: center; align-items: center; padding: 15px; }
+        .wizard-container { background: #1e1e1e; border: 1px solid #b8bec7; border-right: 7px solid #2f6fb5; border-radius: 14px; width: 100%; max-width: 380px; padding: 16px; box-shadow: 0 8px 28px rgba(0,0,0,0.7); color: #fff; }
+        .wizard-header-title { font-size: 15px; font-weight: bold; color: #b8860b; text-align: right; margin-bottom: 8px; }
+        .numpad-actions-row { display: flex; gap: 8px; margin-top: 14px; }
+        .numpad-action-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 14px; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .numpad-confirm-btn { background: #b8860b; color: #000; }
+        .numpad-cancel-btn { background: #333; color: #ccc; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- شاشة الاستقبال والترحيب -->
+        <div id="welcome-page">
+            <div class="odo-why-btn" onclick="showWelcomeHelp()">؟</div>
+            <div class="logo-lockup">
+                <div class="home-row">
+                    <span class="home-line"></span>
+                    <span class="home-text">HOME</span>
+                    <span class="home-line"></span>
+                </div>
+            </div>
+            
+            <!-- التاريخ في قمة صفحة الاستقبال مع فراغ أفقي وعمودي مريح -->
+            <div style="text-align: center; width: 100%;">
+                <div class="date-plain-box" id="welcome-date-box">
+                    <div class="date-text-display" id="welcome-date-text-display">
+                        <!-- يُعبأ ديناميكياً -->
+                    </div>
+                    <input type="date" class="hidden-date-input" id="welcome-date-picker-input" onchange="onDateInputChanged(this.value)">
+                </div>
+            </div>
+
+            <!-- خانة المصاريف (عرض نصف الشاشة مع ارتفاع أقل وأبيض باهت) -->
+            <div class="welcome-card-box" id="welcome-expense-display">0</div>
+            
+            <!-- خانة الخزينة (عرض نصف الشاشة مع ارتفاع أقل وأبيض باهت) -->
+            <div class="welcome-card-box" id="welcome-treasury-display">0</div>
+
+            <!-- زر ابدأ الآن (نصف عرض الشاشة) -->
+            <button class="start-app-btn" id="startBtn" onclick="startApp()">ابدا الان</button>
+        </div>
+
+        <!-- التطبيق الرئيسي -->
+        <div id="main-app-container" style="display: none; width: 100%; min-height: 100vh;">
+            <div class="main-container">
+                <div class="content-wrap">
+                    <div class="page-header">
+                        <button class="cfg-btn" id="grp-menu-btn" onclick="openAppMenu()" aria-label="القائمة">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6.5h16M4 12h16M4 17.5h16"/></svg>
+                        </button>
+                        <div class="header-mini-brand" onclick="goHome()">
+                            <div class="mini-brand-row"><span style="color:#ffffff;">G</span><span style="color:#b8860b;">MAX</span><span style="color:#4CAF50;">HOME</span></div>
+                            <div class="mini-brand-sub">وضع التجريب المحلي</div>
+                        </div>
+                    </div>
+
+                    <!-- حاوية المحتوى الرئيسي -->
+                    <div id="editor-form-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- صفحة الملاحظات الحرة -->
+        <div id="notes-page-container" style="display: none; width: 100%; min-height: 100vh;">
+            <div class="main-container">
+                <div class="content-wrap">
+                    <div class="page-header">
+                        <span style="font-size:15px; font-weight:bold; color:#b8860b;">ملاحظات العائلة</span>
+                        <button onclick="closeNotesPage()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.3); color:#fff; padding:4px 12px; border-radius:6px; cursor:pointer;">غلق</button>
+                    </div>
+                    <textarea id="notes-textarea" placeholder="اكتب ملاحظات وقوائم التبضع هنا..." oninput="onNotesInput()" style="width: 100%; min-height: 55vh; background: #181818; color: #fff; border: 1px solid #333; border-radius: 10px; padding: 12px; font-size: 15px; line-height: 1.7; resize: vertical; font-family: inherit;"></textarea>
+                    <div id="notes-status" style="font-size: 12px; margin: 6px 0; min-height: 16px;"></div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="saveNotes()" style="flex: 2; background: #b8860b; color: #000; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer;">حفظ محلي</button>
+                        <button onclick="copyNotes()" style="flex: 1; background: #1a1a1a; border: 1px solid #b8860b; color: #ffda75; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer;">نسخ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تسجيل المصاريف المنبثقة -->
+    <div id="fuel-overlay">
+        <div class="fuel-sheet">
+            <div id="exp-step1">
+                <div class="fuel-title">اختر المجموعة الرئيسية</div>
+                <button class="main-group-btn" onclick="selectGroup('food', 'المواد الغذائية')">🛒 المواد الغذائية</button>
+                <button class="main-group-btn" onclick="selectGroup('family', 'مصاريف عائلية')">🏠 مصاريف عائلية</button>
+                <button class="main-group-btn" onclick="selectGroup('special', 'مصاريف خاصة')">👤 مصاريف خاصة</button>
+                <div class="fuel-actions"><button class="fuel-x" onclick="fuelClose()">إلغاء</button></div>
+            </div>
+
+            <div id="exp-step2" style="display:none;">
+                <div class="fuel-title" id="exp-group-title" style="margin-bottom: 8px;"></div>
+                <div id="fuel-amount" class="fuel-amount-box empty">اكتب المبلغ بالدينار</div>
+
+                <div class="fuel-pad">
+                    <button class="fuel-key" onclick="fuelKey('1')">1</button><button class="fuel-key" onclick="fuelKey('2')">2</button><button class="fuel-key" onclick="fuelKey('3')">3</button>
+                    <button class="fuel-key" onclick="fuelKey('4')">4</button><button class="fuel-key" onclick="fuelKey('5')">5</button><button class="fuel-key" onclick="fuelKey('6')">6</button>
+                    <button class="fuel-key" onclick="fuelKey('7')">7</button><button class="fuel-key" onclick="fuelKey('8')">8</button><button class="fuel-key" onclick="fuelKey('9')">9</button>
+                    <button class="fuel-key clear-btn" onclick="fuelKey('clear')">مسح</button><button class="fuel-key" onclick="fuelKey('0')">0</button><button class="fuel-key del" onclick="fuelKey('del')">⌫</button>
+                </div>
+
+                <div class="sub-options-box" id="sub-options-container">
+                    <div class="sub-chips-grid" id="sub-chips-grid"></div>
+                </div>
+
+                <input type="text" id="fuel-note-input" class="fuel-note-input" placeholder="ملاحظة">
+
+                <div id="fuel-err" class="fuel-err"></div>
+                <div class="fuel-actions">
+                    <button class="fuel-x" onclick="fuelClose()">إلغاء</button>
+                    <button class="fuel-ok" onclick="fuelSave()">حفظ السجل</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تزويد الخزينة المنبثقة (ثلاثة أزرار في الأسفل: إلغاء، تزويد، تسوية) -->
+    <div id="fund-overlay" style="position: fixed; inset: 0; z-index: 36600; display: none; align-items: flex-end; justify-content: center; background: rgba(0,0,0,0.7);">
+        <div class="fuel-sheet" style="border-color: #2e7d32; border-right-color: #2e7d32; color: #1b4d20;">
+            <div class="fuel-title" style="color: #235d26;">تزويد الخزينة</div>
+            <div id="fund-amount" class="fuel-amount-box empty" style="border-color: #2e7d32; color: #1b4d20;">اكتب المبلغ بالدينار</div>
+
+            <div class="fuel-pad">
+                <button class="fuel-key" onclick="fundKey('1')">1</button><button class="fuel-key" onclick="fundKey('2')">2</button><button class="fuel-key" onclick="fundKey('3')">3</button>
+                <button class="fuel-key" onclick="fundKey('4')">4</button><button class="fuel-key" onclick="fundKey('5')">5</button><button class="fuel-key" onclick="fundKey('6')">6</button>
+                <button class="fuel-key" onclick="fundKey('7')">7</button><button class="fuel-key" onclick="fundKey('8')">8</button><button class="fuel-key" onclick="fundKey('9')">9</button>
+                <button class="fuel-key clear-btn" onclick="fundKey('clear')">مسح</button><button class="fuel-key" onclick="fundKey('0')">0</button><button class="fuel-key del" onclick="fundKey('del')">⌫</button>
+            </div>
+
+            <input type="text" id="fund-note-input" class="fuel-note-input" placeholder="ملاحظة (اختياري)">
+
+            <div id="fund-err" class="fuel-err"></div>
+            <div class="fuel-actions">
+                <button class="fuel-x" onclick="fundClose()">إلغاء</button>
+                <button class="fuel-ok" onclick="fundSave()" style="background: #2e7d32; flex: 1.5;">تزويد</button>
+                <button class="fuel-ok" onclick="fundSettlement()" style="background: #2f6fb5; color: #fff; flex: 1.5;">تسوية</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة منبثقة لعرض التفاصيل في الإحصائيات -->
+    <div id="stat-detail-overlay" onclick="closeStatDetail()">
+        <div id="stat-detail-card" onclick="event.stopPropagation()">
+            <button class="sd-close" onclick="closeStatDetail()">✕</button>
+            
+            <div class="sd-header-row">
+                <div class="sd-title" id="sd-title-text">التفاصيل</div>
+                <div id="asset-toggle-container"></div>
+            </div>
+            
+            <div style="text-align: center;">
+                <div class="sd-date-plain-box" id="sd-date-clickable-box" style="display: none;">
+                    <span id="sd-date-label-text"></span>
+                    <input type="date" id="custom-stat-date-input" class="hidden-absolute-date" onchange="onCustomDateChanged(this.value)">
+                </div>
+            </div>
+
+            <div class="sd-big-val" id="sd-big-val-text">0 دج</div>
+            
+            <div id="sd-body-content" style="overflow-y: auto; max-height: 55vh;"></div>
+        </div>
+    </div>
+
+    <!-- قائمة الخيارات والتنقل -->
+    <div id="app-menu-overlay" onclick="closeAppMenu()"><div id="app-menu" onclick="event.stopPropagation()"></div></div>
+
+    <!-- نافذة معلومات منبثقة -->
+    <div id="date-info-overlay" class="wizard-overlay">
+        <div class="wizard-container">
+            <div class="wizard-header-title" id="info-title">معلومات</div>
+            <div id="info-body" style="font-size: 13px; line-height: 1.8; color: #ddd; margin: 10px 0;"></div>
+            <div class="numpad-actions-row">
+                <button class="numpad-action-btn numpad-confirm-btn" onclick="document.getElementById('date-info-overlay').style.display='none'">حسنًا</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================================
+        //  معدل التخزين المحلي (LocalStorage Driver - التجريبي)
+        // ====================================================================
+        const localCloud = {
+            get: function(key) {
+                try { return localStorage.getItem('gmax_home_local_' + key); } catch(e) { return null; }
+            },
+            set: function(key, val) {
+                try { localStorage.setItem('gmax_home_local_' + key, val); return true; } catch(e) { return false; }
+            },
+            clear: function() {
+                try {
+                    localStorage.removeItem('gmax_home_local_home_expenses');
+                    localStorage.removeItem('gmax_home_local_ref_date');
+                    localStorage.removeItem('gmax_home_local_notes');
+                    localStorage.removeItem('gmax_home_local_custom_stats_date');
+                    localStorage.removeItem('gmax_home_local_assets_enabled');
+                    return true;
+                } catch(e) { return false; }
+            }
+        };
+
+        const GROUP_SUB_ITEMS = {
+            food: [
+                { k: 'food_market', label: 'ماركت' },
+                { k: 'food_veg', label: 'خضر' },
+                { k: 'food_fruit', label: 'فواكه' },
+                { k: 'food_meat', label: 'لحوم' },
+                { k: 'food_other', label: 'أخرى' }
+            ],
+            family: [
+                { k: 'bills', label: 'فواتير' },
+                { k: 'education', label: 'تعليم' },
+                { k: 'health', label: 'صحة' },
+                { k: 'clothes', label: 'ملابس' },
+                { k: 'family_other', label: 'أخرى' }
+            ],
+            special: [
+                { k: 'car', label: 'سياره' },
+                { k: 'entertainment', label: 'ترفيه' },
+                { k: 'special_house', label: 'تجهيز' },
+                { k: 'personal', label: 'أصول' },
+                { k: 'special_other', label: 'أخرى' }
+            ]
+        };
+
+        const ALL_CATS = [
+            { k: 'fund_add', label: 'تزويد الخزينة' },
+            { k: 'food_market', label: 'ماركت' },
+            { k: 'food_veg', label: 'خضر' },
+            { k: 'food_fruit', label: 'فواكه' },
+            { k: 'food_meat', label: 'لحوم' },
+            { k: 'food_other', label: 'غذاء - أخرى' },
+            { k: 'bills', label: 'فواتير' },
+            { k: 'education', label: 'تعليم' },
+            { k: 'health', label: 'صحة' },
+            { k: 'clothes', label: 'ملابس' },
+            { k: 'family_other', label: 'عائلية - أخرى' },
+            { k: 'car', label: 'سياره' },
+            { k: 'entertainment', label: 'ترفيه' },
+            { k: 'special_house', label: 'تجهيز' },
+            { k: 'personal', label: 'أصول' },
+            { k: 'settlement', label: 'التسوية' },
+            { k: 'special_other', label: 'خاصة - أخرى' }
+        ];
+
+        const expCatLabel = k => (ALL_CATS.find(c => c.k === k) || { label: k }).label;
+        const ALGERIAN_MONTHS = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+        let fuelAmountStr = '';
+        let fuelMsg = '';
+        let currentGroupKey = 'food';
+        let selectedSubKey = 'food_market';
+        let fundAmountStr = '';
+        let expView = 'home';
+        
+        let assetsEnabled = localCloud.get('assets_enabled') !== 'false';
+
+        function getTodayDateString() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        function getRefDate() {
+            let saved = localCloud.get('ref_date');
+            if (saved) return saved;
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+        }
+
+        function onDateInputChanged(val) {
+            if (!val) return;
+            localCloud.set('ref_date', val);
+            updateWelcomeScreen();
+            if (expView !== 'home') renderExpensesPage();
+        }
+
+        function formatMoney(val) {
+            if (val === "" || val === null || isNaN(val)) return "0";
+            return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function formatReadableDate(dateStr) {
+            if (!dateStr) return '';
+            let p = String(dateStr).split('-');
+            if (p.length !== 3) return dateStr;
+            let y = p[0];
+            let m = ALGERIAN_MONTHS[parseInt(p[1], 10) - 1] || p[1];
+            let d = parseInt(p[2], 10);
+            return `من ${d} ${m} ${y}`;
+        }
+
+        function expLoad() {
+            try {
+                let a = JSON.parse(localCloud.get('home_expenses') || '[]');
+                if (!Array.isArray(a)) return [];
+                return a.filter(x => x && typeof x.d === 'string' && Number(x.a) !== 0);
+            } catch (e) { return []; }
+        }
+
+        function expStore(arr) { 
+            let res = localCloud.set('home_expenses', JSON.stringify(arr));
+            updateWelcomeScreen();
+            return res;
+        }
+
+        function expSorted(arr) { return arr.slice().sort((x, y) => (x.d < y.d ? 1 : x.d > y.d ? -1 : (y.id || 0) - (x.id || 0))); }
+        function fuelDateLabel(d) {
+            let p = String(d).split('-');
+            return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+        }
+
+        const expSum = list => list.reduce((t, x) => t + Number(x.a), 0);
+        const expMoney = n => `<span class="num-ltr">${formatMoney(n)}</span> دج`;
+
+        function getFinancialsSinceRef() {
+            const all = expLoad();
+            const refDate = getRefDate();
+            const filteredSinceRef = all.filter(x => x.d >= refDate);
+            // إجمالي المصاريف تشمل المصاريف العادية أو تسويات الخزينة المحسوبة بالسالب
+            const expenseSinceRef = expSum(filteredSinceRef.filter(x => x.c !== 'fund_add' && Number(x.a) > 0)) + Math.abs(expSum(filteredSinceRef.filter(x => x.c === 'settlement' && Number(x.a) < 0)));
+            const totalFundSinceRef = expSum(filteredSinceRef.filter(x => x.c === 'fund_add'));
+            const remainingCash = totalFundSinceRef - expenseSinceRef;
+            return { expenseSinceRef, remainingCash };
+        }
+
+        function updateWelcomeScreen() {
+            const refDate = getRefDate();
+            const [yStr, mStr, dStr] = refDate.split('-');
+            const dayNum = parseInt(dStr, 10);
+            const monthName = ALGERIAN_MONTHS[parseInt(mStr, 10) - 1] || mStr;
+
+            let dateDisplayEl = document.getElementById('welcome-date-text-display');
+            if (dateDisplayEl) {
+                dateDisplayEl.innerHTML = `<span><span class="num-ltr">${dayNum}</span></span><span>${monthName}</span><span><span class="num-ltr">${yStr}</span></span>`;
+            }
+            let dateInputEl = document.getElementById('welcome-date-picker-input');
+            if (dateInputEl) {
+                dateInputEl.value = refDate;
+            }
+
+            let { expenseSinceRef, remainingCash } = getFinancialsSinceRef();
+            
+            let expEl = document.getElementById('welcome-expense-display');
+            if (expEl) {
+                expEl.innerHTML = `<span class="num-ltr">${formatMoney(expenseSinceRef)}</span>`;
+            }
+
+            let tresEl = document.getElementById('welcome-treasury-display');
+            if (tresEl) {
+                tresEl.innerHTML = `<span class="num-ltr">${formatMoney(remainingCash)}</span>`;
+            }
+        }
+
+        const FORM_EL = () => document.getElementById('editor-form-container');
+        const EXP_BACK_ARROW = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+        const expSubHead = title => `<div class="exp-subhead"><button class="exp-back" onclick="expGo('home')" aria-label="رجوع">${EXP_BACK_ARROW}</button><span>${title}</span></div>`;
+
+        function expGo(v) { expView = v; renderExpensesPage(); window.scrollTo(0, 0); }
+
+        function renderExpensesPage() {
+            if (expView === 'stats') return renderStatsPage();
+            if (expView === 'list') return renderExpListPage();
+
+            FORM_EL().innerHTML = `
+                <div style="padding-top: 10px;">
+                    <button class="fund-add-btn" onclick="fundOpen()">تزويد الخزينة</button>
+                    <button class="fuel-add-btn" onclick="fuelOpen()">تسجيل المصروف</button>
+                    <button class="exp-big-btn list" onclick="expGo('list')">سجل المصاريف</button>
+                    <button class="exp-big-btn stats" onclick="expGo('stats')">إحصائيات</button>
+                </div>`;
+            fuelMsg = '';
+            updateWelcomeScreen();
+        }
+
+        function renderExpListPage() {
+            const list = expSorted(expLoad());
+            const rows = list.length === 0
+                ? `<div class="fuel-empty">لا توجد سجلات مسجلة بعد.<br>اضغط أزرار الإضافة للبدء.</div>`
+                : list.map(x => {
+                    let noteText = x.n ? ` <small>(${x.n})</small>` : '';
+                    let isFund = x.c === 'fund_add';
+                    let isSettlement = x.c === 'settlement' || Number(x.a) < 0;
+                    let val = Number(x.a);
+                    let sign = (isFund && val > 0) ? '+' : '-';
+                    let color = (isFund && val > 0) ? '#76ff03' : (isSettlement ? '#ff5252' : '#ffda75');
+                    let displayVal = Math.abs(val);
+                    return `<div class="fuel-row"><span class="fuel-d">${fuelDateLabel(x.d)}</span><span class="exp-mid">${expCatLabel(x.c)}${noteText}</span><span class="fuel-a" style="color:${color}">${sign} ${expMoney(displayVal)}</span><button class="fuel-del" onclick="fuelDelete(${Number(x.id) || 0}, '${x.d}', ${val})">✕</button></div>`;
+                }).join('');
+
+            FORM_EL().innerHTML = `
+                <div style="padding-top: 6px;">
+                    ${expSubHead('سجل المصاريف')}
+                    ${rows}
+                    ${list.length ? `<button class="fuel-copy" onclick="fuelCopy()">نسخ القائمة (للمشاركة في واتساب)</button>` : ''}
+                    <div class="fuel-status" id="fuel-status">${fuelMsg}</div>
+                </div>`;
+            fuelMsg = '';
+        }
+
+        function fundOpen() {
+            fundAmountStr = '';
+            document.getElementById('fund-note-input').value = '';
+            document.getElementById('fund-err').innerText = '';
+            fundRefreshAmount();
+            document.getElementById('fund-overlay').style.display = 'flex';
+        }
+
+        function fundClose() { document.getElementById('fund-overlay').style.display = 'none'; }
+
+        function fundRefreshAmount() {
+            let el = document.getElementById('fund-amount');
+            if (!fundAmountStr) { el.className = 'fuel-amount-box empty'; el.innerText = 'اكتب المبلغ بالدينار'; }
+            else { el.className = 'fuel-amount-box'; el.innerText = formatMoney(fundAmountStr); }
+        }
+
+        function fundKey(k) {
+            document.getElementById('fund-err').innerText = '';
+            if (k === 'del') {
+                fundAmountStr = fundAmountStr.slice(0, -1);
+            } else if (k === 'clear') {
+                fundAmountStr = '';
+            } else {
+                if (fundAmountStr === '' && k === '0') return;
+                if ((fundAmountStr + k).length > 8) return;
+                fundAmountStr += k;
+            }
+            fundRefreshAmount();
+        }
+
+        function fundSave() {
+            let err = document.getElementById('fund-err');
+            let amount = parseInt(fundAmountStr, 10);
+            if (!amount || amount <= 0) { err.innerText = 'اكتب المبلغ أولاً.'; return; }
+            
+            let noteVal = document.getElementById('fund-note-input').value.trim();
+            let d = getTodayDateString();
+            let entry = { id: Date.now(), d: d, a: amount, c: 'fund_add', n: noteVal };
+
+            let arr = expLoad();
+            arr.push(entry);
+            if (!expStore(arr)) { err.innerText = 'تعذر الحفظ.'; return; }
+            fundClose();
+            renderExpensesPage();
+        }
+
+        // زر التسوية القديم: يحذف المبلغ من الخزينة ويسجله بالسالب
+        function fundSettlement() {
+            let err = document.getElementById('fund-err');
+            let amount = parseInt(fundAmountStr, 10);
+            if (!amount || amount <= 0) { err.innerText = 'اكتب المبلغ أولاً.'; return; }
+            
+            let noteVal = document.getElementById('fund-note-input').value.trim();
+            let d = getTodayDateString();
+            let entry = { id: Date.now(), d: d, a: -amount, c: 'settlement', n: noteVal };
+
+            let arr = expLoad();
+            arr.push(entry);
+            if (!expStore(arr)) { err.innerText = 'تعذر الحفظ.'; return; }
+            fundClose();
+            renderExpensesPage();
+        }
+
+        function fuelOpen() {
+            document.getElementById('exp-step1').style.display = '';
+            document.getElementById('exp-step2').style.display = 'none';
+            document.getElementById('fuel-overlay').style.display = 'flex';
+        }
+
+        function fuelClose() { document.getElementById('fuel-overlay').style.display = 'none'; }
+
+        function selectGroup(groupKey, groupTitle) {
+            currentGroupKey = groupKey;
+            const subs = GROUP_SUB_ITEMS[groupKey];
+            selectedSubKey = subs[0].k;
+
+            document.getElementById('exp-group-title').innerText = groupTitle;
+            
+            let gridCols = subs.length;
+            document.getElementById('sub-chips-grid').style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+
+            document.getElementById('sub-chips-grid').innerHTML = subs.map(s => 
+                `<button type="button" class="sub-chip ${s.k === selectedSubKey ? 'active' : ''}" onclick="selectSubItem('${s.k}')">${s.label}</button>`
+            ).join('');
+
+            fuelAmountStr = '';
+            document.getElementById('fuel-note-input').value = '';
+            document.getElementById('fuel-err').innerText = '';
+            fuelRefreshAmount();
+
+            document.getElementById('exp-step1').style.display = 'none';
+            document.getElementById('exp-step2').style.display = '';
+        }
+
+        function selectSubItem(subKey) {
+            selectedSubKey = subKey;
+            const subs = GROUP_SUB_ITEMS[currentGroupKey];
+            document.getElementById('sub-chips-grid').innerHTML = subs.map(s => 
+                `<button type="button" class="sub-chip ${s.k === selectedSubKey ? 'active' : ''}" onclick="selectSubItem('${s.k}')">${s.label}</button>`
+            ).join('');
+        }
+
+        function fuelRefreshAmount() {
+            let el = document.getElementById('fuel-amount');
+            if (!fuelAmountStr) { el.className = 'fuel-amount-box empty'; el.innerText = 'اكتب المبلغ بالدينار'; }
+            else { el.className = 'fuel-amount-box'; el.innerText = formatMoney(fuelAmountStr); }
+        }
+
+        function fuelKey(k) {
+            document.getElementById('fuel-err').innerText = '';
+            if (k === 'del') {
+                fuelAmountStr = fuelAmountStr.slice(0, -1);
+            } else if (k === 'clear') {
+                fuelAmountStr = '';
+            } else {
+                if (fuelAmountStr === '' && k === '0') return;
+                if ((fuelAmountStr + k).length > 8) return;
+                fuelAmountStr += k;
+            }
+            fuelRefreshAmount();
+        }
+
+        function fuelSave() {
+            let err = document.getElementById('fuel-err');
+            let amount = parseInt(fuelAmountStr, 10);
+            if (!amount || amount <= 0) { err.innerText = 'اكتب المبلغ أولاً.'; return; }
+            
+            let noteVal = document.getElementById('fuel-note-input').value.trim();
+            let d = getTodayDateString();
+            let entry = { id: Date.now(), d: d, a: amount, c: selectedSubKey, n: noteVal };
+
+            let arr = expLoad();
+            arr.push(entry);
+            if (!expStore(arr)) { err.innerText = 'تعذر الحفظ.'; return; }
+            fuelClose();
+            renderExpensesPage();
+        }
+
+        function fuelDelete(id, d, a) {
+            if (!confirm('حذف هذا السجل بتاريخ ' + fuelDateLabel(d) + ' بمبلغ ' + formatMoney(Math.abs(a)) + ' دج؟')) return;
+            let arr = expLoad();
+            let i = arr.findIndex(x => (Number(x.id) || 0) === id && x.d === d && Number(x.a) === a);
+            if (i === -1) return;
+            arr.splice(i, 1);
+            expStore(arr);
+            renderExpensesPage();
+        }
+
+        function fuelCopy() {
+            const list = expSorted(expLoad());
+            let text = 'سجل المصاريف والمبالغ\n'
+                + list.map(x => {
+                    let nStr = x.n ? ` (${x.n})` : '';
+                    let isFund = x.c === 'fund_add' && Number(x.a) > 0;
+                    let isSettlement = x.c === 'settlement' || Number(x.a) < 0;
+                    let type = isFund ? 'تزويد خزينة' : (isSettlement ? 'تسوية' : expCatLabel(x.c));
+                    let sign = isFund ? '+' : '-';
+                    return `${fuelDateLabel(x.d)} - ${type}${nStr}: ${sign} ${formatMoney(Math.abs(x.a))} دج`;
+                }).join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                let el = document.getElementById('fuel-status');
+                if (el) { el.style.color = '#76ff03'; el.innerText = 'تم النسخ بنجاح! يمكن إلصاقها في واتساب ✓'; }
+            });
+        }
+
+        /* ====================================================================
+         *  إحصائيات وتقارير
+         * ==================================================================== */
+        function renderStatsPage() {
+            FORM_EL().innerHTML = `
+                <div style="padding-top: 6px;">
+                    ${expSubHead('الإحصائيات والتقارير')}
+                    <div class="st-hint">اختر التقرير المطلوب:</div>
+                    
+                    <button class="st-q" onclick="openYearlyStats()">📅 المصروف السنوي (حسب السنوات)</button>
+                    <button class="st-q" onclick="openCustomDateStatsModal()">⏱️ المصروف منذ تاريخ معين</button>
+                    <button class="st-q" onclick="openSettlementRecordsModal()" style="border-right-color: #2e7d32;">📋 سجل التسويات</button>
+
+                    <div class="st-foot">يتم تحليل وتقسيم البيانات فورياً بناءً على مدخلاتك وتفعيل الأصول.</div>
+                </div>`;
+        }
+
+        function getAssetToggleHtml() {
+            return `<div class="asset-toggle-pill ${assetsEnabled ? 'active' : ''}" onclick="toggleAssetsMode()">
+                <span>الأصول</span>
+                <span style="font-size:10px;">${assetsEnabled ? '✓' : '✕'}</span>
+            </div>`;
+        }
+
+        function toggleAssetsMode() {
+            assetsEnabled = !assetsEnabled;
+            localCloud.set('assets_enabled', assetsEnabled ? 'true' : 'false');
+            
+            let containerEl = document.getElementById('asset-toggle-container');
+            if (containerEl) {
+                containerEl.innerHTML = getAssetToggleHtml();
+            }
+
+            if (currentActiveStatModal === 'yearly') {
+                if (currentActiveYear) openYearDetails(currentActiveYear);
+                else openYearlyStats();
+            } else if (currentActiveStatModal === 'custom') {
+                let inputEl = document.getElementById('custom-stat-date-input');
+                let savedDate = (inputEl && inputEl.value) ? inputEl.value : (localCloud.get('custom_stats_date') || getTodayDateString());
+                updateCustomDateStats(savedDate);
+            }
+        }
+
+        let currentActiveStatModal = null;
+        let currentActiveYear = null;
+
+        function filterExpenses(list) {
+            let res = list.filter(x => Number(x.a) > 0 && x.c !== 'fund_add');
+            if (!assetsEnabled) {
+                res = res.filter(x => x.c !== 'personal');
+            }
+            return res;
+        }
+
+        // تفاصيل البطاقة الأولى: المصروف السنوي
+        function openYearlyStats() {
+            currentActiveStatModal = 'yearly';
+            currentActiveYear = null;
+
+            const all = filterExpenses(expLoad());
+            const years = [...new Set(all.map(x => x.d.slice(0, 4)))].sort((a, b) => b.localeCompare(a));
+
+            let bodyHtml = '';
+            if (years.length === 0) {
+                bodyHtml = `<div class="fuel-empty" style="padding:20px;">لا توجد مصاريف مسجلة حتى الآن.</div>`;
+            } else {
+                bodyHtml = `<div style="font-size: 13px; color: #aaa; margin-bottom: 12px; text-align:right;">اضغط على أي سنة لعرض تفاصيل بنودها ونسبها المئوية:</div>` +
+                    years.map(y => {
+                        const yrList = all.filter(x => x.d.slice(0, 4) === y);
+                        const yrTotal = expSum(yrList);
+                        return `<button class="st-q" style="margin-bottom:8px; padding:12px 14px;" onclick="openYearDetails('${y}')">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>سنة <span class="num-ltr">${y}</span></span>
+                                <span style="color:#ffd54a;">${expMoney(yrTotal)}</span>
+                            </div>
+                        </button>`;
+                    }).join('');
+            }
+
+            document.getElementById('sd-title-text').innerText = 'المصروف السنوي';
+            document.getElementById('asset-toggle-container').innerHTML = getAssetToggleHtml();
+            document.getElementById('sd-date-clickable-box').style.display = 'none';
+            document.getElementById('sd-big-val-text').innerText = 'اختر السنة المطلوبة';
+            document.getElementById('sd-body-content').innerHTML = bodyHtml;
+            document.getElementById('stat-detail-overlay').style.display = 'flex';
+        }
+
+        function openYearDetails(year) {
+            currentActiveYear = year;
+            const all = filterExpenses(expLoad().filter(x => x.d.slice(0, 4) === year));
+            const total = expSum(all);
+
+            const rows = ALL_CATS.filter(c => c.k !== 'fund_add' && c.k !== 'settlement' && (assetsEnabled || c.k !== 'personal')).map(c => {
+                const v = expSum(all.filter(x => x.c === c.k));
+                return { c, v };
+            }).filter(r => r.v > 0).sort((a, b) => b.v - a.v)
+            .map(r => {
+                const p = total ? Math.round((r.v / total) * 100) : 0;
+                return `<div class="st-cat">
+                    <div class="st-cat-top"><span>${r.c.label}</span><span><span class="num-ltr">${p}%</span> · ${expMoney(r.v)}</span></div>
+                    <div class="st-cat-bar"><div style="width:${Math.max(3, p)}%;background:#b8860b;"></div></div>
+                </div>`;
+            }).join('') || `<div class="fuel-empty">لا توجد تفاصيل لهذه السنة.</div>`;
+
+            document.getElementById('sd-title-text').innerText = `تفاصيل سنة ${year}`;
+            document.getElementById('asset-toggle-container').innerHTML = getAssetToggleHtml();
+            document.getElementById('sd-date-clickable-box').style.display = 'none';
+            document.getElementById('sd-big-val-text').innerHTML = expMoney(total);
+            document.getElementById('sd-body-content').innerHTML = `<div class="st-cats" style="margin-top:0;">${rows}</div>`;
+        }
+
+        // تفاصيل البطاقة الثانية: المصروف منذ تاريخ محدد
+        function openCustomDateStatsModal() {
+            currentActiveStatModal = 'custom';
+            currentActiveYear = null;
+            let savedDate = localCloud.get('custom_stats_date') || getTodayDateString();
+            
+            document.getElementById('sd-title-text').innerText = 'المصروف منذ تاريخ معين';
+            document.getElementById('asset-toggle-container').innerHTML = getAssetToggleHtml();
+            
+            let dateBox = document.getElementById('sd-date-clickable-box');
+            dateBox.style.display = 'inline-block';
+            
+            document.getElementById('custom-stat-date-input').value = savedDate;
+            updateCustomDateStats(savedDate);
+            
+            document.getElementById('stat-detail-overlay').style.display = 'flex';
+        }
+
+        function onCustomDateChanged(newDate) {
+            if (!newDate) return;
+            localCloud.set('custom_stats_date', newDate);
+            updateCustomDateStats(newDate);
+        }
+
+        function updateCustomDateStats(startDate) {
+            const rawAll = expLoad().filter(x => x.d >= startDate);
+            const all = filterExpenses(rawAll);
+            const total = expSum(all);
+
+            document.getElementById('sd-date-label-text').innerText = formatReadableDate(startDate);
+            document.getElementById('custom-stat-date-input').value = startDate;
+            document.getElementById('sd-big-val-text').innerHTML = expMoney(total);
+
+            const rows = ALL_CATS.filter(c => c.k !== 'fund_add' && c.k !== 'settlement' && (assetsEnabled || c.k !== 'personal')).map(c => {
+                const v = expSum(all.filter(x => x.c === c.k));
+                return { c, v };
+            }).filter(r => r.v > 0).sort((a, b) => b.v - a.v)
+            .map(r => {
+                const p = total ? Math.round((r.v / total) * 100) : 0;
+                return `<div class="st-cat">
+                    <div class="st-cat-top"><span>${r.c.label}</span><span><span class="num-ltr">${p}%</span> · ${expMoney(r.v)}</span></div>
+                    <div class="st-cat-bar"><div style="width:${Math.max(3, p)}%;background:#2f6fb5;"></div></div>
+                </div>`;
+            }).join('') || `<div class="fuel-empty">لا توجد مصاريف مسجلة منذ تاريخ ${fuelDateLabel(startDate)}.</div>`;
+
+            let resEl = document.getElementById('sd-body-content');
+            if (resEl) {
+                resEl.innerHTML = `<div style="font-size: 13px; color: #aaa; margin-bottom: 8px; text-align:right;">توزيع الفروع:</div><div class="st-cats" style="margin-top:0;">${rows}</div>`;
+            }
+        }
+
+        // الزر الثالث الجديد: سجل التسويات الشامل
+        function openSettlementRecordsModal() {
+            currentActiveStatModal = 'settlements_report';
+            currentActiveYear = null;
+
+            const all = expLoad().filter(x => x.c === 'settlement' || Number(x.a) < 0);
+            const currentYearStr = new Date().getFullYear().toString();
+
+            document.getElementById('sd-title-text').innerText = 'سجل التسويات';
+            document.getElementById('asset-toggle-container').innerHTML = '';
+            document.getElementById('sd-date-clickable-box').style.display = 'none';
+
+            let bodyHtml = '';
+            if (all.length === 0) {
+                document.getElementById('sd-big-val-text').innerText = '0 دج';
+                bodyHtml = `<div class="fuel-empty" style="padding:20px;">لا توجد عمليات تسوية مسجلة حتى الآن.</div>`;
+            } else {
+                const totalSettlements = all.reduce((t, x) => t + Math.abs(Number(x.a)), 0);
+                document.getElementById('sd-big-val-text').innerHTML = expMoney(totalSettlements);
+
+                const currentYearItems = all.filter(x => x.d.slice(0, 4) === currentYearStr).sort((a, b) => b.d.localeCompare(a.d));
+                const pastYearsMap = {};
+                all.filter(x => x.d.slice(0, 4) !== currentYearStr).forEach(x => {
+                    let y = x.d.slice(0, 4);
+                    pastYearsMap[y] = (pastYearsMap[y] || 0) + Math.abs(Number(x.a));
+                });
+                const pastYearsKeys = Object.keys(pastYearsMap).sort((a, b) => b.localeCompare(a));
+
+                let sections = [];
+
+                if (currentYearItems.length > 0) {
+                    let rows = currentYearItems.map(s => {
+                        let noteStr = s.n ? ` (${s.n})` : '';
+                        return `<tr><td><span class="num-ltr">${fuelDateLabel(s.d)}</span>${noteStr}</td><td><span style="color:#ffda75; font-weight:bold;">${expMoney(Math.abs(s.a))}</span></td></tr>`;
+                    }).join('');
+                    sections.push(`
+                        <div style="margin-bottom: 15px; text-align: right;">
+                            <div style="font-size: 13.5px; font-weight: bold; color: #b8860b; margin-bottom: 6px;">تسويات السنة الحالية (<span class="num-ltr">${currentYearStr}</span>)</div>
+                            <table class="settlement-table">
+                                <thead><tr><th>التاريخ</th><th>المبلغ</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    `);
+                }
+
+                if (pastYearsKeys.length > 0) {
+                    let rows = pastYearsKeys.map(y => 
+                        `<tr><td><span class="num-ltr">${y}</span></td><td><span style="color:#ffda75; font-weight:bold;">${expMoney(pastYearsMap[y])}</span></td></tr>`
+                    ).join('');
+                    sections.push(`
+                        <div style="margin-bottom: 15px; text-align: right;">
+                            <div style="font-size: 13.5px; font-weight: bold; color: #b8860b; margin-bottom: 6px;">تسويات السنوات الماضية (مجمعة)</div>
+                            <table class="settlement-table">
+                                <thead><tr><th>السنة</th><th>مجموع التسويات</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    `);
+                }
+
+                bodyHtml = sections.join('');
+            }
+
+            document.getElementById('sd-body-content').innerHTML = bodyHtml;
+            document.getElementById('stat-detail-overlay').style.display = 'flex';
+        }
+
+        function closeStatDetail() {
+            document.getElementById('stat-detail-overlay').style.display = 'none';
+            currentActiveStatModal = null;
+        }
+
+        // القوائم والملاحظات
+        function openAppMenu() {
+            const r = document.getElementById('grp-menu-btn').getBoundingClientRect();
+            const pn = document.getElementById('app-menu');
+            pn.style.top = (r.bottom + 4) + 'px';
+            pn.style.right = Math.max(8, window.innerWidth - r.right) + 'px';
+            pn.innerHTML = [
+                ['notes', 'ملاحظات العائلة'],
+                ['app', 'شرح التطبيق والتجريب'],
+                ['reset', 'تفريغ البيانات المحلية']
+            ].map(x => `<button class="am-item ${x[0]==='reset'?'danger':''}" onclick="appMenuAct('${x[0]}')">${x[1]}</button>`).join('');
+            document.getElementById('app-menu-overlay').style.display = 'block';
+        }
+
+        function closeAppMenu() { document.getElementById('app-menu-overlay').style.display = 'none'; }
+
+        function appMenuAct(a) {
+            closeAppMenu();
+            if (a === 'notes') openNotesPage();
+            else if (a === 'app') showWelcomeHelp();
+            else if (a === 'reset') {
+                if(confirm("هل أنت متأكد من رغبتك في مسح كل البيانات المحلية للبدء من جديد؟")) {
+                    localCloud.clear();
+                    alert("تم تفريغ البيانات المحلية.");
+                    updateWelcomeScreen();
+                    renderExpensesPage();
+                }
+            }
+        }
+
+        function showWelcomeHelp() {
+            showInfo('حول GMax Home (نسخة التجريب)', 'هذه النسخة تعمل كلياً على الذاكرة المحلية لهاتفك أو حاسوبك (LocalStorage).<br><br><b>الإحصائيات والأصول:</b> يمكنك تفعيل أو تعطيل حساب فرع الأصول في أي وقت من الزر الموجود في منتصف رأس نافذة التفاصيل.');
+        }
+
+        function showInfo(title, html) {
+            document.getElementById('info-title').innerText = title;
+            document.getElementById('info-body').innerHTML = html;
+            document.getElementById('date-info-overlay').style.display = 'flex';
+        }
+
+        function openNotesPage() {
+            document.getElementById('notes-textarea').value = localCloud.get('notes') || '';
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('welcome-page').style.display = 'none';
+            document.getElementById('notes-page-container').style.display = 'block';
+        }
+        function closeNotesPage() {
+            document.getElementById('notes-page-container').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+        }
+        function saveNotes() {
+            localCloud.set('notes', document.getElementById('notes-textarea').value);
+            document.getElementById('notes-status').style.color = '#76ff03';
+            document.getElementById('notes-status').innerText = 'تم الحفظ محلياً بنجاح ✓';
+        }
+        function copyNotes() {
+            navigator.clipboard.writeText(document.getElementById('notes-textarea').value).then(() => {
+                document.getElementById('notes-status').style.color = '#76ff03';
+                document.getElementById('notes-status').innerText = 'تم نسخ الملاحظات ✓';
+            });
+        }
+        function onNotesInput() { document.getElementById('notes-status').innerText = ''; }
+
+        function startApp() {
+            document.getElementById('welcome-page').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            renderExpensesPage();
+        }
+
+        function goHome() {
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('notes-page-container').style.display = 'none';
+            document.getElementById('welcome-page').style.display = 'flex';
+            updateWelcomeScreen();
+        }
+
+        window.onload = function() {
+            updateWelcomeScreen();
+        };
+    </script>
+</body>
+</html>
