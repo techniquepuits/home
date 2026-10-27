@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قارئ عداد السيارة الذكي مع فلاش</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        video, canvas {
+            width: 100%;
+            display: block;
+        }
+        /* إطار التحديد في المنتصف */
+        .scan-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px dashed #00ffcc;
+            background: rgba(0, 255, 204, 0.05);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            transition: width 0.1s, height 0.1s;
+        }
+        .controls {
+            padding: 15px;
+            background: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        button, select {
+            flex: 1;
+            padding: 10px;
+            background: #00ffcc;
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:active {
+            background: #00b386;
+        }
+        .flash-btn {
+            background: #ffc107 !important;
+            color: #000 !important;
+        }
+        .result-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1e1e1e;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 480px;
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 60%;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #fff;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="cameraContainer" style="display:none;">
+        <video id="video" autoplay playsinline></video>
+        <!-- إطار القص -->
+        <div class="scan-frame" id="scanFrame"></div>
+    </div>
+
+    <div class="controls" id="startControls" style="width: 100%; max-width: 480px;">
+        <button onclick="startCamera()">فتح الكاميرا لالتقاط العداد</button>
+    </div>
+
+    <div class="controls" id="actionControls" style="display:none; width: 100%; max-width: 480px;">
+        <div class="btn-group">
+            <button onclick="adjustSize(10, 0)">عرض +</button>
+            <button onclick="adjustSize(-10, 0)">عرض -</button>
+            <button onclick="adjustSize(0, 10)">طول +</button>
+            <button onclick="adjustSize(0, -10)">طول -</button>
+        </div>
+        <div class="btn-group">
+            <button onclick="zoomIn()">تقريب Zoom +</button>
+            <button class="flash-btn" id="flashBtn" onclick="toggleFlash()">تشغيل الفلاش 🔦</button>
+        </div>
+        <div class="btn-group">
+            <button onclick="captureAndCrop()" style="background: #28a745; color: #fff; flex: 2;">التقاط وقص الرقم</button>
+        </div>
+    </div>
+
+    <div class="result-section" id="resultSection" style="display:none;">
+        <h3>الرقم المستخرج (للتأكيد):</h3>
+        <p>قم بتعديل الرقم إذا كان هناك خطأ في القراءة:</p>
+        <input type="text" id="mileageInput">
+        <br><br>
+        <button onclick="confirmAndSave()" style="background: #28a745; color: #fff;">تأكيد وإرسال لقاعدة البيانات</button>
+    </div>
+
+    <!-- تضمين مكتبة Tesseract.js المجانية للتعرف على النصوص OCR محلياً -->
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+    
+    <script>
+        const video = document.getElementById('video');
+        const scanFrame = document.getElementById('scanFrame');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const startControls = document.getElementById('startControls');
+        const actionControls = document.getElementById('actionControls');
+        const resultSection = document.getElementById('resultSection');
+        const mileageInput = document.getElementById('mileageInput');
+        const flashBtn = document.getElementById('flashBtn');
+
+        let frameWidth = 300;
+        let frameHeight = 100;
+        let currentZoom = 1;
+        let track = null;
+        let flashOn = false;
+
+        updateFrameSize();
+
+        function updateFrameSize() {
+            scanFrame.style.width = frameWidth + 'px';
+            scanFrame.style.height = frameHeight + 'px';
+        }
+
+        function adjustSize(w, h) {
+            frameWidth = Math.max(100, frameWidth + w);
+            frameHeight = Math.max(40, frameHeight + h);
+            updateFrameSize();
+        }
+
+        async function startCamera() {
+            startControls.style.display = 'none';
+            cameraContainer.style.display = 'block';
+            actionControls.style.display = 'flex';
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: 'environment', 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 } 
+                    }
+                });
+                video.srcObject = stream;
+                track = stream.getVideoTracks()[0];
+            } catch (err) {
+                alert('تعذر الوصول إلى الكاميرا: ' + err.message);
+            }
+        }
+
+        async function zoomIn() {
+            if (track) {
+                const capabilities = track.getCapabilities();
+                if (capabilities.zoom) {
+                    currentZoom = currentZoom >= capabilities.zoom.max ? capabilities.zoom.min : currentZoom + 1;
+                    try {
+                        await track.applyConstraints({ advanced: [{ zoom: currentZoom }] });
+                    } catch (e) {
+                        console.log('التقريب غير مدعوم');
+                    }
+                } else {
+                    alert('خاصية الزوم غير مدعومة مباشرة من متصفحك لهذا الجهاز.');
+                }
+            }
+        }
+
+        async function toggleFlash() {
+            if (track) {
+                const capabilities = track.getCapabilities();
+                if (capabilities.torch) {
+                    flashOn = !flashOn;
+                    try {
+                        await track.applyConstraints({ advanced: [{ torch: flashOn }] });
+                        flashBtn.style.background = flashOn ? '#ff4444' : '#ffc107';
+                        flashBtn.innerText = flashOn ? 'إطفاء الفلاش ⚡' : 'تشغيل الفلاش 🔦';
+                    } catch (e) {
+                        alert('تعذر تشغيل فلاش الكاميرا.');
+                    }
+                } else {
+                    alert('فلاش الكاميرا غير مدعوم في هذا المتصفح أو الجهاز.');
+                }
+            }
+        }
+
+        function captureAndCrop() {
+            // إيقاف الفلاش تلقائياً عند الالتقاط إن كان مشتعلاً
+            if (flashOn && track) {
+                track.applyConstraints({ advanced: [{ torch: false }] }).catch(()=>{});
+            }
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            const vWidth = video.videoWidth;
+            const vHeight = video.videoHeight;
+            const cWidth = video.clientWidth;
+            const cHeight = video.clientHeight;
+
+            canvas.width = vWidth;
+            canvas.height = vHeight;
+            context.drawImage(video, 0, 0, vWidth, vHeight);
+
+            const scaleX = vWidth / cWidth;
+            const scaleY = vHeight / cHeight;
+
+            const cropX = (cWidth / 2 - frameWidth / 2) * scaleX;
+            const cropY = (cHeight / 2 - frameHeight / 2) * scaleY;
+            const cropW = frameWidth * scaleX;
+            const cropH = frameHeight * scaleY;
+
+            const croppedCanvas = document.createElement('canvas');
+            croppedCanvas.width = cropW;
+            croppedCanvas.height = cropH;
+            const croppedCtx = croppedCanvas.getContext('2d');
+
+            croppedCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+            // إيقاف الكاميرا نهائياً بعد الالتقاط
+            video.srcObject.getTracks().forEach(t => t.stop());
+            cameraContainer.style.display = 'none';
+            actionControls.style.display = 'none';
+            resultSection.style.display = 'block';
+            mileageInput.value = "جاري قراءة الرقم...";
+
+            // قراءة الرقم باستخدام Tesseract.js مع إجبارها على قراءة الأرقام المتتالية فقط
+            Tesseract.recognize(
+                croppedCanvas.toDataURL(),
+                'eng',
+                { 
+                    logger: m => console.log(m),
+                    tessedit_char_whitelist: '0123456789' // قصر النتائج على الأرقام فقط لمنع تشتت القراءة
+                }
+            ).then(({ data: { text } }) => {
+                const cleanNumber = text.replace(/[^0-9]/g, '');
+                mileageInput.value = cleanNumber || "";
+            }).catch(err => {
+                mileageInput.value = "";
+                alert("حدث خطأ أثناء قراءة الرقم، أدخله يدوياً من فضلك.");
+            });
+        }
+
+        function confirmAndSave() {
+            const finalValue = mileageInput.value;
+            if(!finalValue) {
+                alert("الرجاء إدخال رقم صحيح!");
+                return;
+            }
+            alert("تم اعتماد الرقم بنجاح: " + finalValue + "\nسيتم الآن إرساله إلى قاعدة البيانات.");
+            // ضع هنا كود الإرسال الفعلي لقاعدة البيانات الخاصة بك
+        }
+    </script>
+</body>
+</html>
